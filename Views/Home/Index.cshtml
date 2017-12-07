@@ -1,0 +1,108 @@
+﻿@using MT.Web.IntegrationLogger.Models;
+
+@model MT.Web.IntegrationLogger.Models.UserCookie
+
+<!--page header start-->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Главная</h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <ol class="breadcrumb">
+                <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>
+                <li>Главная</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!--page header end-->
+<!--start page content-->
+<div class="row center">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body" id="loginBody">
+                @if (string.IsNullOrEmpty(ViewBag.UserCookie.Email))
+                {
+                    <h3>Вход</h3>
+                    <p>Добрый день.</p>
+                    <p>Введите свой E-mail адрес и вы будете видеть только привязанные в WMS к вашему электронному адресу пункты меню.</p>
+                    <p>Или оставьте поле пустым, что бы видеть полную информацию по всем базам и клиентам.</p>
+                    <div class="row">
+                        <div class="col-md-12 col-lg-8">
+                            @using (Html.BeginForm("ManageEmailSession", "Home", FormMethod.Post))
+                            {
+                                @Html.ValidationSummary(false)
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="hidden" name="Type" value="0" />
+                                        @*<input type="text" class="form-control" placeholder="user@mjr.ru" name="Data"/>*@
+                                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control", @placeholder = "user@mjr.ru" })
+                                        <span class="input-group-btn">
+                                            <input type="submit" class="btn btn-default" value="Поставить фильтр по E-mail" />
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <h3>Вы вошли</h3>
+                    <p>Добрый день, вы включили фильтр по электронной почте <strong>@ViewBag.UserCookie.Email</strong>.</p>
+                    <p>При добавлении в WMS новых клиентов для своего E-mail, в MT.BizTalk.Logger вы увидите только после синхронизации сервисов. На текущий момент синхронизации проводятся в 8:00 и 20:00 часов.</p>
+                    <p>Что бы включить обратно все пункты меню, нажмите на кнопку "Отключить фильтр по E-mail".</p>
+                    <div class="row">
+                        @using (Html.BeginForm("ManageEmailSession", "Home", FormMethod.Post))
+                        {
+                            <div class="col-md-12 text-right">
+                                <input type="hidden" name="Type" value="1" />
+                                <input type="hidden" name="Data" value="@ViewBag.UserCookie.Email" />
+                                <input type="submit" class="btn btn-default" value="Отключить фильтр по E-mail" />
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    @*<div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>Отключенные папки для загрузки</h3>
+                @if (ViewBag.DisabledLocations.Count > 0)
+                {
+                <p>Список текущих отключенных папок\E-mail\FTP и других локаций BizTalk:</p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Локация</th>
+                                <th>Дата отключения</th>
+                                <th>Наименование в BizTalk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (OtherData loc in ViewBag.DisabledLocations)
+                                    {
+                                <tr>
+                                    <td style="word-break: break-all">@loc.Value2</td>
+                                    <td class="tdNowrap">@loc.Date1.ToString("dd.MM.yyyy hh:mm")</td>
+                                    <td style="word-break: break-all">@loc.Value1</td>
+                                </tr>
+                                    }
+                        </tbody>
+                    </table>
+                </div>
+                }
+                else
+                {
+                <p>Все папки\E-mail\FTP и другие локации BizTalk запущены.</p>
+                }
+            </div>
+        </div>
+    </div>*@
+</div>
+
+<!--end page content-->

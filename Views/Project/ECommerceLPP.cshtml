@@ -1,0 +1,331 @@
+﻿@using MT.Web.IntegrationLogger.Models;
+@using System.Text.RegularExpressions;
+@model List<ECommerceLPPData>
+
+<!--page header start-->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Отслеживаение обмена с перевозчиками по LPP E-Commerce 
+                @if (!string.IsNullOrEmpty(@ViewBag.Order))
+                {
+                    @Html.Raw("по заказу " + @ViewBag.Order)
+                }
+                else if (@ViewBag.SearchDate == DateTime.Now.ToString("dd.MM.yyyy") || string.IsNullOrEmpty(@ViewBag.SearchDate))
+                {
+                    @Html.Raw("за сегодня")
+                }
+                else
+                {
+                    @Html.Raw("за " + @ViewBag.SearchDate)
+                }
+            </h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <ol class="breadcrumb">
+                <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>
+                <li>LPP E-Commerce</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="showRequest" tabindex="-1" role="dialog" aria-labelledby="showRequest">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="fa fa-times-circle"></span></button>
+            </div>
+            <div class="modal-body" id="showRequestModalBody">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--page header end-->
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default collapsed">
+            <div class="panel-body">
+                <div class="col-lg-9 col-md-9 col-sm-7 col-xs-7 no-padding">
+                    <div class="row padding-20">
+                        @using (Html.BeginForm("ECommerceLPP", "Project", FormMethod.Get, new { @class = "form-inline pull-left" }))
+                        {
+                            <div class="form-group">
+                                <h4>Показать все запросы на дату</h4>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="Date" id="LoadingDate" value="@( string.IsNullOrEmpty(@ViewBag.SearchDate) == true ? DateTime.Now.ToString("dd.MM.yyyy") : @ViewBag.SearchDate  )" />
+                                    <span class="input-group-btn">
+                                        <button type="submit" class="btn btn-default"><i class="fa fa-arrow-right"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="row padding-20">
+                        @using (Html.BeginForm("ECommerceLPP", "Project", FormMethod.Get, new { @class = "form-inline pull-left" }))
+                        {
+                            <div class="form-group">
+                                <h4>Показать все запросы по заказу <small>Для поиска нескольких заказов ищите через |</small> </h4>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="Order" id="Order" value="@( string.IsNullOrEmpty(@ViewBag.Order) == true ? "" : @ViewBag.Order)" />
+                                    <span class="input-group-btn">
+                                        <button type="submit" class="btn btn-default"><i class="fa fa-arrow-right"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-3 col-sm-5 col-xs-5 no-padding">
+                    <h4>Статус доступности </h4>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="widget bg-default padding-0 margin-b-5" id="shippingWidget1">
+                                <div class="row row-table">
+                                    <div class="col-xs-4 text-center bg-light-dark">
+                                        <em class="fa fa-spinner fa-spin fa-2x" id="shippingWidget1fa"></em>
+                                    </div>
+                                    <div class="col-xs-8 pv-15 text-center">
+                                        <div class="text" id="shippingWidget1text">Проверяется...</div>
+                                    </div>
+                                </div>
+                            </div><!--end widget-->
+                        </div>
+                     </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="widget bg-default padding-0 margin-b-5" id="shippingWidget2">
+                                <div class="row row-table">
+                                    <div class="col-xs-4 text-center bg-light-dark">
+                                        <em class="fa fa-spinner fa-spin fa-2x" id="shippingWidget2fa"></em>
+                                    </div>
+                                    <div class="col-xs-8 pv-15 text-center">
+                                        <div class="text" id="shippingWidget2text">Проверяется...</div>
+                                    </div>
+                                </div>
+                            </div><!--end widget-->
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="widget bg-default padding-0 margin-b-5" id="shippingWidget3">
+                                <div class="row row-table">
+                                    <div class="col-xs-4 text-center bg-light-dark">
+                                        <em class="fa fa-spinner fa-spin fa-2x" id="shippingWidget3fa"></em>
+                                    </div>
+                                    <div class="col-xs-8 pv-15 text-center">
+                                        <div class="text" id="shippingWidget3text">Проверяется...</div>
+                                    </div>
+                                </div>
+                            </div><!--end widget-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" id="LPPEComData">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div>
+                    @if (Model.Count == 0)
+                    {
+                        <div class="text-center">
+                            <h3>
+                            @if (@ViewBag.SearchDate == DateTime.Now.ToString("dd.MM.yyyy"))
+                            {
+                                @Html.Raw("За сегодня запросов не было.")
+                            }
+                            else if (!string.IsNullOrEmpty(@ViewBag.Order))
+                            {
+                                @Html.Raw("Заказ " + @ViewBag.Order + " не найден")
+                            }
+                            else
+                            {
+                                @Html.Raw("За " + @ViewBag.SearchDate + " запросов не было.")
+                            }
+                            </h3>
+                        </div>
+                    }
+                    else
+                    {
+                    <table class="table dt-responsive row-border hover" width="100%">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Дата</th>
+                                <th width="1%">Номер заказа</th>
+                                <th class="text-center" width="1%">Перевозчик</th>
+                                <th class="text-center" width="15%">Запрос создания заказа</th>
+                                <th class="text-center">Потоки данных</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var Order in Model.OrderByDescending(ob => ob.UpdateDateTime).Select(s => new { s.AttempIndex, s.Order }).OrderByDescending(obd => obd.AttempIndex).Distinct())
+                            {
+                                <tr>
+                                    <td>
+                                        @Model.Where(w => w.Order == Order.Order && w.AttempIndex == Order.AttempIndex).Select(s => s.UpdateDateTime).Min().AddHours(3).ToString("dd.MM.yyyy HH:mm")
+                                    </td>
+                                    <td>
+                                        @Order.Order
+                                    </td>
+                                    <td class="text-center">
+                                        @Model.Where(w => w.Order == Order.Order && w.AttempIndex == Order.AttempIndex).Select(s => s.ShippingAgent).FirstOrDefault()
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="javascript:GetBody('@Order.Order', '0', '0', '@Order.AttempIndex')">Просмотреть запрос</a>
+                                    </td>
+                                    <td>
+                                        <table>
+                                            @foreach (ECommerceLPPData Data in Model.Where(w => w.Order == Order.Order && w.AttempIndex == Order.AttempIndex && w.Step != 0).OrderBy(ob => ob.Step))
+                                            {
+                                                <tr>
+                                                    <td class="border-right LPPECom">Шаг @Data.Step: @Data.StepName.</td>
+                                                    <td class="border-right LPPECom">
+                                                        @if (!string.IsNullOrEmpty(Data.RequestBody))
+                                                        {
+                                                            <a href="javascript:GetBody('@Order.Order', '0', '@Data.Step', '@Order.AttempIndex')">Просмотреть Запрос</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <text></text>
+                                                        }
+                                                    </td>
+                                                    <td class="LPPECom">
+                                                        @if (!string.IsNullOrEmpty(Data.ResponseBody) && @Data.Step != 15)
+                                                        {
+                                                            <a href="javascript:GetBody('@Order.Order', '1', '@Data.Step', '@Order.AttempIndex')">Просмотреть Ответ</a>
+                                                        }
+                                                        @*else if (!string.IsNullOrEmpty(Data.ResponseBody) && @Data.Step == 15)
+                                                        {
+                                                                string filePath = "";
+                                                                string fileName = "";
+                                                                
+                                                                try 
+                                                                {
+                                                                    filePath = @System.Xml.Linq.XDocument.Parse(Data.ResponseBody).Root.Value;
+                                                                
+                                                                    System.Text.RegularExpressions.Regex rFileName = new System.Text.RegularExpressions.Regex(@"(\\)?(?<filename>[^\\]+\.\w+)$");
+                                                                    System.Text.RegularExpressions.Match mFileName = rFileName.Match(filePath);
+
+                                                                    fileName = mFileName.Groups["filename"].Value;
+                                                                }
+                                                                catch 
+                                                                {
+                                                                    filePath = "";
+                                                                    fileName = "";
+                                                                }
+
+                                                                if (!string.IsNullOrEmpty(fileName))
+                                                                {
+                                                                    @Html.Raw(string.Format("<a href=\"{0}?UNCFilePath={1}&FileName={2}\">Скачать Файл</a>", Url.Action("DownloadFile", "Incoming"), filePath, fileName));
+                                                                }
+
+                                                        }*@
+                                                        else
+                                                        {
+
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        GetState(1);
+        GetState(2);
+        GetState(3);
+    });
+
+    $(function () {
+        $('#LoadingDate').datetimepicker({
+            locale: 'ru',
+            format: 'DD.MM.YYYY',
+            widgetPositioning: {
+                horizontal: 'right',
+                vertical: 'bottom'
+            }
+        });
+    });
+
+    function GetBody(Order, Type, StepID, AttempIndex) {
+        $.ajax({
+            url: "@(Url.Action("_ECommerceData", "Project"))",
+            data: {
+                Order: Order,
+                Type: Type,
+                StepID: StepID,
+                AttempIndex: AttempIndex
+            },
+            type: "POST",
+            cache: false,
+            async: true,
+            success: function (data) {
+                $('#showRequestModalBody').html(data);
+                $('#showRequest').modal('show');
+                //SyntaxHighlighter.all();
+            }
+        })
+    };
+
+    function GetState(Type) {
+            $.ajax({
+                url: "@(Url.Action("ECommerceCheckShippingAgent", "Project"))",
+                data: {
+                    Type: Type
+                },
+            type: "POST",
+            cache: false,
+            async: true,
+            success: function (data) {
+                if (data.Success) {
+                    var ShippingAgent;
+
+                    if (Type == '1')
+                        ShippingAgent = 'http://ws.dpd.ru/';
+                    else if (Type == '2')
+                        ShippingAgent = 'https://integration.cdek.ru/';
+                    else if (Type == '3')
+                        ShippingAgent = 'https://otpravka-api.pochta.ru/';
+
+                    $('#shippingWidget' + Type).removeClass('bg-default');
+                    $('#shippingWidget' + Type).addClass('bg-success');
+
+                    $('#shippingWidget' + Type + 'text').html(ShippingAgent);
+
+                    $('#shippingWidget' + Type + 'fa').removeClass('fa-spinner');
+                    $('#shippingWidget' + Type + 'fa').removeClass('fa-spin');
+                    $('#shippingWidget' + Type + 'fa').addClass('fa-check');
+                }
+                else {
+                    $('#shippingWidget' + Type).removeClass('bg-default');
+                    $('#shippingWidget' + Type).addClass('bg-danger');
+
+                    $('#shippingWidget' + Type + 'text').html(ShippingAgent);
+
+                    $('#shippingWidget' + Type + 'fa').removeClass('fa-spinner');
+                    $('#shippingWidget' + Type + 'fa').removeClass('fa-spin');
+                    $('#shippingWidget' + Type + 'fa').addClass('fa-times');
+                }
+            }
+        })
+   };
+</script>

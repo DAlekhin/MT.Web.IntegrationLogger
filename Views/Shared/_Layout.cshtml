@@ -1,0 +1,191 @@
+﻿@using System.Web.Optimization;
+@using MT.Web.IntegrationLogger.Models;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>MT.BizTalk Logger</title>
+
+    <!--[if IE]>
+      <script type = "text/javascript">
+        window.location = "@Url.Action("NotSupported", "Home")";
+        </script>
+    <![endif]-->
+
+    <!-- Common plugins -->
+    @Styles.Render("~/Content/bootstrap")
+    @Styles.Render("~/Content/other")
+    @Styles.Render("~/Content/datatable")
+    @Styles.Render("~/Content/custom")
+    @Scripts.Render("~/bundles/pre-js")
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+
+    <!--[if lt IE 11]>
+      @Scripts.Render("~/bundles/ie")
+    <![endif]-->
+
+
+</head>
+<body>
+
+    <!--top bar start-->
+    <div class="top-bar light-top-bar">
+        <!--by default top bar is dark, add .light-top-bar class to make it light-->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-6">
+                    <a href="@Url.Action("Index", "Home")" class="admin-logo">
+                        <h1>MT.BizTalk Logger</h1>
+                    </a>
+                    <div class="left-nav-toggle visible-xs visible-sm">
+                        <a href="">
+                            <i class="fa fa-bars"></i>
+                        </a>
+                    </div><!--end nav toggle icon-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- top bar end-->
+    <!--left navigation start-->
+    <aside class="float-navigation light-navigation">
+        <div class="nano">
+            <div class="nano-content">
+                <ul class="metisMenu nav" id="menu">
+
+                    <li class="nav-heading"><span>Основное меню</span></li>
+                    <li @(ViewBag.ActionName == "Index" ? "class=active" : "")><a href="@Url.Action("Index", "Home")"><i class="fa fa-home"></i> Главная </a></li>
+                    <li @(ViewBag.ActionName == "FastJump" ? "class=active" : "")><a href="@Url.Action("FastJump", "Home")"><i class="fa fa-fast-forward"></i> Быстрый переход </a></li>
+                    
+                    <li class="nav-heading"><span>Входящие файлы</span></li>
+                    <li @(ViewBag.ActionName == "Database" ? "class=active" : "")>
+                        <a href="javascript: void(0);" aria-expanded="true"><i class="fa fa-database"></i> По Базам <span class="fa arrow"></span></a>
+                        <ul class="@(ViewBag.ActionName == "Database" ? "nav-second-level nav collapse in" : "nav-second-level nav")" aria-expanded="false">
+                            @foreach (LayoutData db in @ViewBag.DataBases)
+                            {
+                                <li>
+                                    @Html.ActionLink(db.Data, "Database", "Incoming", new { Name = db.Data }, null)
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                    <li @(ViewBag.ActionName == "Customer" ? "class=active" : "")>
+                        <a href="javascript: void(0);" aria-expanded="true"><i class="fa fa-users"></i> По Клиентам <span class="fa arrow"></span></a>
+                        <ul class="@(ViewBag.ActionName == "Customer" ? "nav-second-level nav collapse in" : "nav-second-level nav")" aria-expanded="false">
+                            @foreach (LayoutData customer in @ViewBag.Customers)
+                            {
+                                <li>
+                                    @Html.ActionLink(customer.Data, "Customer", "Incoming", new { Name = customer.Data }, null)
+                                </li>
+                            }
+                        </ul>
+                    </li>
+
+                    <li @(ViewBag.ActionName == "Supplier" ? "class=active" : "")>
+                        <a href="javascript: void(0);" aria-expanded="true"><i class="fa fa-recycle"></i> По Поставщикам <span class="fa arrow"></span></a>
+                        <ul class="@(ViewBag.ActionName == "Supplier" ? "nav-second-level nav collapse in" : "nav-second-level nav")" aria-expanded="false">
+                            @foreach (LayoutData supplier in @ViewBag.Suppliers)
+                            {
+                                <li>
+                                    @Html.ActionLink(supplier.Data, "Supplier", "Incoming", new { Name = supplier.Data }, null)
+                                </li>
+                            }
+                        </ul>
+                    </li>
+
+                    <li @(ViewBag.ActionName == "LinkFile" ? "class=active" : "")>
+                        <a href="javascript: void(0);" aria-expanded="true"><i class="fa fa-link"></i> Подвязка Файлов <span class="fa arrow"></span></a>
+                        <ul class="@(ViewBag.ActionName == "LinkFile" ? "nav-second-level nav collapse in" : "nav-second-level nav")" aria-expanded="false">
+                            @foreach (LayoutData linkFile in @ViewBag.LinkFile)
+                            {
+                                <li>
+                                    @Html.ActionLink(linkFile.Data, "LinkFile", "Incoming", new { Name = linkFile.Data }, null)
+                                </li>
+                            }
+                        </ul>
+                    </li>
+
+                    @*<li class="nav-heading"><span>Рассылка WMS чеков</span></li>
+                    <li>
+                        <a href="@Url.Action("Coming", "Home")"><i class="fa fa-list-alt"></i> Отчет по работе </a>
+                    </li>
+                    
+                    <li class="nav-heading"><span>ЭДО Диадок</span></li>
+                    <li>
+                        <a href="@Url.Action("Coming", "Home")"><i class="fa fa-files-o"></i> Отчет по работе </a>
+                    </li>
+
+                    <li class="nav-heading"><span>Отчеты По Событиям</span></li>
+                    <li>
+                        <a href="javascript: void(0);" aria-expanded="true"><i class="fa fa-database"></i> По Базам <span class="fa arrow"></span></a>
+                        <ul class="nav-second-level nav" aria-expanded="true">
+                            <li><a href="@Url.Action("Coming", "Home")">В разработке...</a></li>
+
+                        </ul>
+                    </li>*@
+                    <li class="nav-heading"><span>Отслеживание состояния</span></li>
+                    <li @(ViewBag.ControllerName == "Project" ? "class=active" : "")>
+                        <a href="javascript: void(0);" aria-expanded="false"><i class="fa fa-briefcase"></i> По Проектам <span class="fa arrow"></span></a>
+                        <ul class="@(ViewBag.ControllerName == "Project" ? "nav-second-level nav collapse in" : "nav-second-level nav")" aria-expanded="false">
+                            <li>
+                                <a href="javascript: void(0);" aria-expanded="false">LPP <span class="fa arrow"></span></a>
+                                <ul class="@(ViewBag.ActionName == "LPP" ? "nav-third-level nav collapse in" : "nav-third-level nav")" aria-expanded="false">
+                                    <li>
+                                        @Html.ActionLink("Состояние Волн", "LPP", "Project")
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="javascript: void(0);" aria-expanded="false">Schlumberger <span class="fa arrow"></span></a>
+                                <ul class="@(ViewBag.ActionName == "Schlumberger" || ViewBag.ActionName == "SchlumbergerTrips" ? "nav-third-level nav collapse in" : "nav-third-level nav")" aria-expanded="false">
+                                    <li>
+                                        @Html.ActionLink("Состояние Обмена", "Schlumberger", "Project")
+                                    </li>
+                                    <li>
+                                        @Html.ActionLink("Список Трипов", "SchlumbergerTrips", "Project")
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="javascript: void(0);" aria-expanded="false">LPP E-Commerce <span class="fa arrow"></span></a>
+                                <ul class="@(ViewBag.ActionName == "ECommerceLPP" ? "nav-third-level nav collapse in" : "nav-third-level nav")" aria-expanded="false">
+                                    <li>
+                                        @Html.ActionLink("Список Заказов", "ECommerceLPP", "Project")
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+
+                </ul>
+            </div><!--nano content-->
+        </div><!--nano scroll end-->
+    </aside>
+    <!--left navigation end-->
+    <!--main content start-->
+    <section class="main-content container">
+        
+        @RenderBody()
+
+        <!--end page content-->
+        <!--Start footer-->
+        <footer class="footer">
+            <span>&copy; Ma<span style="color:red">j</span>or Terminal, 2015-@DateTime.Now.Year.</span>
+            @Html.ActionLink("Список обновлений сайта", "Changelog", "Home")
+        </footer>
+
+        <!--end footer-->
+
+    </section>
+    <!--end main content-->
+    <!--Common plugins-->
+    @Scripts.Render("~/bundles/post-js")
+
+</body>
+</html>

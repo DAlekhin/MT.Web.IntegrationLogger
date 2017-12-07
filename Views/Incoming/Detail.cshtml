@@ -1,0 +1,413 @@
+﻿@model MT.Web.IntegrationLogger.Models.DetailInfo
+
+@{
+    MT.Web.IntegrationLogger.Models.DataBaseData dbData = new MT.Web.IntegrationLogger.Models.DataBaseData();
+
+    dbData = @ViewBag.HeaderData;
+}
+<!--page header start-->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Информация о загрузке @Model.MessageID за @Model.TableDate.Substring(6, 2).@Model.TableDate.Substring(4, 2).@Model.TableDate.Substring(0, 4)</h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <ol class="breadcrumb">
+                <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>
+                <li>Входящие Файлы</li>
+                <li>Детальная Информация</li>
+                <li>@Model.DataBaseName</li>
+                <li>@Model.ID</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!--page header end-->
+<!--start page content-->
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default collapsed">
+            <div class="panel-body no-padding-LR">
+                <div class="row row-table">
+                    <div class="col-sm-4 col-md-4 col-lg-2 text-center border-right">
+                        <h5>Показывать в детализации:</h5>
+                        <div class="btn-group-vertical" data-toggle="buttons">
+                            <label class="btn btn-default btn-xs btn-left" id="btnTrace">
+                                <i class="fa fa-times"></i>
+                                <input type="checkbox" id="ShowTrace" value="true" /> Отслеживание
+                            </label>
+                            <label class="btn btn-info btn-xs btn-left" id="btnDebug">
+                                <i class="fa fa-times"></i>
+                                <input type="checkbox" id="ShowDebug" value="true" /> Отладка
+                            </label>
+                            <label class="btn btn-success btn-xs active btn-left" id="btnInfo">
+                                <i class="fa fa-check"></i>
+                                <input type="checkbox" id="ShowInfo" checked value="true" /> Информация
+                            </label>
+                            <label class="btn btn-warning btn-xs active btn-left" id="btnWarning">
+                                <i class="fa fa-check"></i>
+                                <input type="checkbox" id="ShowWarning" checked value="true" /> Предупреждение
+                            </label>
+                            <label class="btn btn-danger btn-xs active btn-left" id="btnError">
+                                <i class="fa fa-check"></i>
+                                <input type="checkbox" id="ShowError" checked value="true" /> Ошибка
+                            </label>
+                            <label class="btn btn-fatal btn-xs active disabled btn-left" id="btnError">
+                                <i class="fa fa-check"></i>
+                                <input type="checkbox" id="ShowError" checked value="true" /> Критическая Ошибка
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 border-right verticalAlignMiddle">
+                        <div class="buttons margin-b-20">
+                            @if (!string.IsNullOrEmpty(Model.FileName))
+                            {
+                                <a href="@Url.Action("DownloadFile", "Incoming")?UNCFilePath=@Model.FilePath&FileName=@Model.FileName" class="btn btn-default btn-border btn-rounded btn-block"><i class="fa fa-download"></i>&nbsp;Скачать файл</a>
+
+                                if (!string.IsNullOrEmpty(dbData.ReceivePortName) && !string.IsNullOrEmpty(Model.FileName))
+                                {
+                                    <a href="#" onclick="RetrySendFileToBizTalk(escape('@dbData.File.Replace(@"\", @"\\")'), '@dbData.ReceivePortName');" class="btn btn-default btn-border btn-rounded btn-block" id="RetrySendFileToBizTalkBtn"><i class="fa fa-refresh"></i>&nbsp;Отправить повторно</a>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-warning text-center">
+                                    Данные по файлу отсутствуют. Вы не сможете ни скачать, ни отправить повторно данный файл.
+                                </p>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-sm-5 col-md-5 col-lg-5">
+                        <ul class="list-unstyled margin-b-0 text-center row">
+                            <li class="col-xs-3">
+                                <span class="font-600">@dbData.CustomerID</span>
+                                <p class="text-muted text-sm margin-b-0">Клиент Но.</p>
+                            </li>
+                            <li class="col-xs-3">
+                                <span class="font-600">@dbData.ProjectID</span>
+                                <p class="text-muted text-sm margin-b-0">Проект</p>
+                            </li>
+                            <li class="col-xs-3">
+                                <span class="font-600">@dbData.StockID</span>
+                                <p class="text-muted text-sm margin-b-0">Склад</p>
+                            </li>
+                            <li class="col-xs-3">
+                                <span class="font-600">@(string.IsNullOrEmpty(dbData.SupplierID) ? "--- " : dbData.SupplierID)</span>
+                                <p class="text-muted text-sm margin-b-0">Поставщик</p>
+                            </li>
+                        </ul>
+                        <br />
+                        <ul class="list-unstyled margin-b-0 text-center row">
+                            <li class="col-xs-3">
+                                <span class="font-600">@dbData.DataBaseName</span>
+                                <p class="text-muted text-sm margin-b-0">Система</p>
+                            </li>
+                            <li class="col-xs-3">
+                                <span class="font-600">@Model.TableDate.Substring(6, 2).@Model.TableDate.Substring(4, 2).@Model.TableDate.Substring(0, 4)</span>
+                                <p class="text-muted text-sm margin-b-0">Дата</p>
+                            </li>
+                            <li class="col-xs-3">
+                                <span class="font-600">@dbData.insertedDateTime</span>
+                                <p class="text-muted text-sm margin-b-0">Время</p>
+                            </li>
+                            <li class="col-xs-3">
+                                <span class="font-600">@dbData.TimerProcessingSeconds</span>
+                                <p class="text-muted text-sm margin-b-0">Длительность</p>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-1 col-md-1 col-lg-2">
+                        @*<ul class="list-unstyled margin-b-0 text-center row verticalAlignMiddle">
+                            <li class="col-xs-12">
+                                <span class="font-600">@dbData.CustomerName</span>
+                                @<p class="text-muted text-sm margin-b-0">Наименование клиента</p>
+                            </li>
+                        </ul>*@
+                    </div>
+               </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        @if (!string.IsNullOrEmpty(Model.Exception))
+        {
+            @Html.Raw("$('#DetailAlert').show();");
+        }
+        else
+        {
+            @Html.Raw("$('#DetailAlert').hide();");
+        }
+    });
+</script>
+<div class="alert alert-danger alert-dismissible fade in" role="alert" id="DetailAlert">@Model.Exception</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default collapsed">
+            <div class="panel-body">
+                <table id="datatable" class="table dt-responsive row-border hover" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Время операции</th>
+                            <th>Уровень информирования</th>
+                            <th>Сообщение</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div><!--end row-->
+
+<script>
+    function hasClass(element, cls) {
+        return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+    }
+
+    function RetrySendFileToBizTalk(FileURL, ReceivePortName) {
+        $.ajax({
+            url: "@(Url.Action("RetrySendFileToBizTalk", "Incoming"))",
+            type: "POST",
+            data: {
+                FileURL: FileURL,
+                ReceivePortName: ReceivePortName
+            },
+            cache: false,
+            async: true,
+            success: function (data) {
+                if (!data.Success) {
+                    $('#RetrySendFileToBizTalkBtn').removeClass('btn-default');
+                    $('#RetrySendFileToBizTalkBtn').removeClass('btn-border');
+                    $('#RetrySendFileToBizTalkBtn').addClass('btn-danger');
+                    $('#RetrySendFileToBizTalkBtn').html('<i class="fa fa-times"></i>&nbsp;Ошибка Отправки');
+                    $('#RetrySendFileToBizTalkBtn').addClass('disabled');
+                    $('#DetailAlert').show();
+                    $('#DetailAlert').html(data.ResultText);
+                }
+                else {
+                    $('#RetrySendFileToBizTalkBtn').removeClass('btn-default');
+                    $('#RetrySendFileToBizTalkBtn').removeClass('btn-border');
+                    $('#RetrySendFileToBizTalkBtn').addClass('btn-success');
+                    $('#RetrySendFileToBizTalkBtn').html('<i class="fa fa-check"></i>&nbsp;Файл Отправлен');
+                    $('#RetrySendFileToBizTalkBtn').addClass('disabled');
+                }
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        @*@if (!string.IsNullOrEmpty(Model.Exception))
+        {
+            @Html.Raw("$('#DetailAlert').show();");
+        }
+        else
+        {
+            @Html.Raw("$('#DetailAlert').hide();");
+        }*@
+
+        $('#btnTrace').click(function () {
+            if (hasClass(this, 'active')) {
+                $("#btnTrace>i").removeClass("fa-check").addClass("fa-times");
+                $("#btnTrace>input#ShowTrace").prop('checked', false);
+            }
+            else {
+                $("#btnTrace>i").removeClass("fa-times").addClass("fa-check");
+                $("#btnTrace>input#ShowTrace").prop('checked', true);
+            }
+
+            table.draw();
+        });
+
+        $('#btnDebug').click(function () {
+            if (hasClass(this, 'active')) {
+                $("#btnDebug>i").removeClass("fa-check").addClass("fa-times");
+                $("#btnDebug>input#ShowDebug").prop('checked', false);
+            }
+            else {
+                $("#btnDebug>i").removeClass("fa-times").addClass("fa-check");
+                $("#btnDebug>input#ShowDebug").prop('checked', true);
+            }
+
+            table.draw();
+        });
+
+        $('#btnInfo').click(function () {
+            if (hasClass(this, 'active')) {
+                $("#btnInfo>i").removeClass("fa-check").addClass("fa-times");
+                $("#btnInfo>input#ShowInfo").prop('checked', false);
+            }
+            else {
+                $("#btnInfo>i").removeClass("fa-times").addClass("fa-check");
+                $("#btnInfo>input#ShowInfo").prop('checked', true);
+            }
+
+            table.draw();
+        });
+
+        $('#btnWarning').click(function () {
+            if (hasClass(this, 'active')) {
+                $("#btnWarning>i").removeClass("fa-check").addClass("fa-times");
+                $("#btnWarning>input#ShowWarning").prop('checked', false);
+            }
+            else {
+                $("#btnWarning>i").removeClass("fa-times").addClass("fa-check");
+                $("#btnWarning>input#ShowWarning").prop('checked', true);
+            }
+
+            table.draw();
+        });
+
+        $('#btnError').click(function () {
+            if (hasClass(this, 'active')) {
+                $("#btnError>i").removeClass("fa-check").addClass("fa-times");
+                $("#btnError>input#ShowError").prop('checked', false);
+            }
+            else {
+                $("#btnError>i").removeClass("fa-times").addClass("fa-check");
+                $("#btnError>input#ShowError").prop('checked', true);
+            }
+
+            table.draw();
+        });
+
+
+
+        $.fn.dataTableExt.afnFiltering.push(function (oSettings, aData, iDataIndex) {
+            var ShowTraceChecked = $('#ShowTrace').is(':checked');
+            var ShowDebugChecked = $('#ShowDebug').is(':checked');
+            var ShowInfoChecked = $('#ShowInfo').is(':checked');
+            var ShowWarningChecked = $('#ShowWarning').is(':checked');
+            var ShowErrorChecked = $('#ShowError').is(':checked');
+
+            if (ShowTraceChecked && aData[1] === 'Отслеживание') {
+                return true;
+            }
+
+            if (ShowDebugChecked && aData[1] === 'Отладка') {
+                return true;
+            }
+
+            if (ShowInfoChecked && aData[1] === 'Информация') {
+                return true;
+            }
+
+            if (ShowWarningChecked && aData[1] === 'Предупреждение') {
+                return true;
+            }
+
+            if (ShowErrorChecked && aData[1] === 'Ошибка') {
+                return true;
+            }
+
+            if (aData[1] === 'Критическая ошибка') {
+                return true;
+            }
+
+            return false;
+        });
+
+        var table = $('#datatable').DataTable({
+            "processing": true,
+            //"serverSide": true,
+            "lengthMenu": [[100, 250, 500, 1000, -1], [100, 250, 500, 1000, "Все"]],
+            "iDisplayLength": 500,
+            "responsive": true,
+            "ajax": {
+                "url": "@Html.Raw(Url.Action("GetLogJsonData", "Incoming", new { dbName = Model.DataBaseName, ID = Model.ID, TableDate = Model.TableDate }))",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "columns": [
+                {
+                    "data": "InsertDate",
+                    "orderable": false,
+                    "searchable": false,
+                    "visible": true,
+                    "width": "1%",
+                    "className": "text-center verticalAlignMiddle"
+                },
+                {
+                    "data": "Level",
+                    "orderable": false,
+                    "searchable": true,
+                    "render": function (data, type, row, meta) {
+                        var a = '';
+
+                        if (row.Level == 2) {
+                            a = '<span class="label label-info">Отладка</span>'
+                        }
+                        else if (row.Level == 3) {
+                            a = '<span class="label label-success">Информация</span>'
+                        }
+                        else if (row.Level == 4) {
+                            a = '<span class="label label-warning">Предупреждение</span>'
+                        }
+                        else if (row.Level == 5) {
+                            a = '<span class="label label-danger">Ошибка</span>'
+                        }
+                        else if (row.Level == 6) {
+                            a = '<span class="label label-danger">Критическая ошибка</span>'
+                        }
+                        else {
+                            a = '<span class="label label-default">Отслеживание</span>'
+                        }
+
+
+                        return a;
+                    },
+                    "className": "text-center verticalAlignMiddle"
+                },
+                {
+                    "data": "Message",
+                    "orderable": false,
+                    "className": "verticalAlignMiddle"
+                },
+            ],
+            "createdRow": function (row, data, dataIndex) {
+                if (data["Level"] == 2) {
+                    $(row).addClass('info');
+                }
+                else if (data["Level"] == 3) {
+                    $(row).addClass('success');
+                }
+                else if (data["Level"] == 4) {
+                    $(row).addClass('warning');
+                }
+                else if (data["Level"] == 5) {
+                    $(row).addClass('danger');
+                }
+                else if (data["Level"] == 6) {
+                    $(row).addClass('rowFatal');
+                }
+            },
+            "order": [[0, "desc"]],
+            "language": {
+                "processing": "Подождите...",
+                "search": "Поиск:",
+                "lengthMenu": "Показать _MENU_ записей",
+                "info": "Записи с _START_ до _END_ из _TOTAL_ записей",
+                "infoEmpty": "Записи с 0 до 0 из 0 записей",
+                "infoFiltered": "(отфильтровано из _MAX_ записей)",
+                "infoPostFix": "",
+                "loadingRecords": "Загрузка записей...",
+                "zeroRecords": "Записи отсутствуют.",
+                "emptyTable": "В таблице отсутствуют данные",
+                "paginate": {
+                    "first": "Первая",
+                    "previous": "Предыдущая",
+                    "next": "Следующая",
+                    "last": "Последняя"
+                },
+                "aria": {
+                    "sortAscending": ": активировать для сортировки столбца по возрастанию",
+                    "sortDescending": ": активировать для сортировки столбца по убыванию"
+                }
+            }
+        });
+    });
+</script>

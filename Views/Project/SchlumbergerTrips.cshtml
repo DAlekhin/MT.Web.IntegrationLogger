@@ -1,0 +1,203 @@
+﻿@model List<MT.Web.IntegrationLogger.Models.DataBaseData>
+
+<!--page header start-->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Просмотр всех трипов по Schlumberger</h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <ol class="breadcrumb">
+                <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>
+                <li>Проекты</li>
+                <li>Schlumberger</li>
+                <li>Список Трипов</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!--page header end-->
+<!--start page content-->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default collapsed">
+            <div class="panel-body">
+                <table id="datatable" class="table dt-responsive row-border hover" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="text-right">Действия</th>
+                            <th>Трип</th>
+                            <th>МЗК Отгрузки</th>
+                            <th>Дата Отгрузки</th>
+                            <th>Кол-во СН</th>
+                            <th>Вес</th>
+                            <th>Общий Вес</th>
+                            <th>Equipment</th>
+                            <th>Service Provider</th>
+                            <th>Статус Выгрузки</th>
+                            <th>Дата загрузки в SLB</th>
+                            <th>Номер Отчета</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div><!--end row-->
+
+<script>
+    function hasClass(element, cls) {
+        return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+    }
+
+    $(document).ready(function () {
+        var table = $('#datatable1').DataTable({
+            "processing": true,
+            //"serverSide": true,
+            "iDisplayLength": 50,
+            "responsive": true,
+            "ajax": {
+                "url": "@Html.Raw(Url.Action("GetDataBaseJsonData", "Incoming", new { Type = 0, Name = @ViewBag.dbName, Date = ViewBag.SearchDate }))",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "columns": [
+                {
+                    "data": "LoggerID",
+                    "orderable": false,
+                    "searchable": false,
+                    "visible": true,
+                    "render": function (data, type, row, meta) {
+                        var a;
+
+                        if (row.ResultStatus != '') {
+                            //a = '<a href="@Url.Action("Detail", "Incoming")?dbName=@ViewBag.dbName&ID=' + row.LoggerID + '" target="_Blank"><i class="icon-big fa fa-search-plus"></i></a>'
+                            if (row.ResultStatus == 'OK') {
+                                a = '<a href="@Url.Action("Detail", "Incoming")?dbName=@ViewBag.dbName&ID=' + row.LoggerID + '" class="btn btn-success btn-border btn-rounded btn-xs" target="_Blank">Детализация</a>'
+                            }
+                            else if (row.ResultStatus == 'FATAL') {
+                                a = '<a href="@Url.Action("Detail", "Incoming")?dbName=@ViewBag.dbName&ID=' + row.LoggerID + '" class="btn btn-default btn-border btn-rounded btn-xs" target="_Blank">Детализация</a>'
+                            }
+                            else {
+                                a = '<a href="@Url.Action("Detail", "Incoming")?dbName=@ViewBag.dbName&ID=' + row.LoggerID + '" class="btn btn-danger btn-border btn-rounded btn-xs" target="_Blank">Детализация</a>'
+                            }
+
+                        }
+                        else {
+                            //a = '<i class="icon-big fa fa-hourglass-start"></i>'
+                            //a = '<a href="javascript: void(0);" class="btn btn-warning btn-border btn-rounded btn-xs">Отменить загрузку</a>'
+                            a = '<a href="#" onclick="CallModalForCancelLoading(\'' + row.DataBaseName + '\', ' + row.LoggerID + ', \'@ViewBag.SearchDate\')" class="btn btn-warning btn-border btn-rounded btn-xs">Отменить загрузку</button>'
+                        }
+
+                        //if (row.ReceivePortName != '' && row.FileName != 'null' && row.File != '') {
+                        //    a = a + '<a href="#" onclick="RetrySendFileToBizTalk(\'' + escape(row.File) + '\', \'' + row.ReceivePortName + '\');"><i class="icon-big fa fa-refresh"></i></a>'
+                        //}
+
+                        return a;
+                    },
+                    "width": "1%",
+                    "className": "text-center verticalAlignMiddle"
+                },
+                {
+                    "data": "insertedDateTime",
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "1%",
+                    "className": "verticalAlignMiddle"
+                },
+                {
+                    "data": "TimerProcessingSeconds",
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "1%",
+                    "render": function (data, type, row, meta) {
+                        var a;
+
+                        if (row.ResultStatus != '') {
+                            a = row.TimerProcessingSeconds
+                        }
+                        else {
+                            a = 'Загружается...'
+                        }
+
+                        return a;
+                    },
+                    "className": "verticalAlignMiddle"
+                },
+                //{ "data": "ProjectID", "autoWidth": true },
+                //{ "data": "StockID", "autoWidth": true },
+                //{ "data": "SupplierID", "autoWidth": true },
+                {
+                    "data": "MessageID",
+                    "orderable": false,
+                    "width": "20%",
+                    "className": "text-center verticalAlignMiddle"
+                },
+                {
+                    "data": "FileName",
+                    "orderable": false,
+                    "render": function (data, type, row, meta) {
+                        var a = '';
+
+                        if (row.FileName != 'null' && row.File != '') {
+                            a = '<a href="@Url.Action("DownloadFile", "Incoming")?UNCFilePath=' + row.File + '&FileName=' + row.FileName + '">' + row.FileName + '</a>'
+                        }
+
+                        return a;
+                    },
+                    "width": "40%",
+                    "className": "text-center verticalAlignMiddle"
+                },
+                {
+                    "data": "CustomerID",
+                    "width": "1%",
+                    "orderable": false,
+                    "className": "verticalAlignMiddle"
+                },
+                {
+                    "data": "ResultStatus",
+                    "orderable": false,
+                    "searchable": true,
+                    "visible": false
+                }
+            ],
+            "createdRow": function (row, data, dataIndex) {
+                if (data["ResultStatus"] == "OK") {
+                    $(row).addClass('success');
+                }
+                else if (data["ResultStatus"] == "ERROR") {
+                    $(row).addClass('danger');
+                }
+                else if (data["ResultStatus"] == "FATAL") {
+                    $(row).addClass('rowFatal');
+                }
+            },
+            "order": [[1, "desc"]],
+            "language": {
+                "processing": "Подождите...",
+                "search": "Поиск:",
+                "lengthMenu": "Показать _MENU_ записей",
+                "info": "Записи с _START_ до _END_ из _TOTAL_ записей",
+                "infoEmpty": "Записи с 0 до 0 из 0 записей",
+                "infoFiltered": "(отфильтровано из _MAX_ записей)",
+                "infoPostFix": "",
+                "loadingRecords": "Загрузка записей...",
+                "zeroRecords": "Записи отсутствуют.",
+                "emptyTable": "В таблице отсутствуют данные",
+                "paginate": {
+                    "first": "Первая",
+                    "previous": "Предыдущая",
+                    "next": "Следующая",
+                    "last": "Последняя"
+                },
+                "aria": {
+                    "sortAscending": ": активировать для сортировки столбца по возрастанию",
+                    "sortDescending": ": активировать для сортировки столбца по убыванию"
+                }
+            }
+        });
+    });
+</script>

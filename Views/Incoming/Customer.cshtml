@@ -1,0 +1,319 @@
+﻿@model List<MT.Web.IntegrationLogger.Models.DataBaseData>
+
+<!--page header start-->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Просмотр данных по клиенту @ViewBag.Customer @( @ViewBag.SearchDate == DateTime.Now.ToString("dd.MM.yyyy") || string.IsNullOrEmpty(@ViewBag.SearchDate) ? "" : " за " + @ViewBag.SearchDate)</h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <ol class="breadcrumb">
+                <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>
+                <li>Входящие файлы</li>
+                <li>По клиентам</li>
+                <li>@ViewBag.Customer</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!--page header end-->
+<!--start page content-->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default collapsed">
+            <div class="panel-body">
+                <div class="row rowSearchDate">
+                    <div class="col-sm-9 no-padding">
+                        <div class="btn-group" data-toggle="buttons">
+                            <label class="btn btn-success btn-xs active" id="btnOk">
+                                <i class="fa fa-check"></i>
+                                <input type="checkbox" id="ShowOk" checked value="true" /> Успешные загрузки
+                            </label>
+                            <label class="btn btn-danger btn-xs active" id="btnError">
+                                <i class="fa fa-check"></i>
+                                <input type="checkbox" id="ShowError" checked value="true" /> Ошибки
+                            </label>
+                            <label class="btn btn-fatal btn-xs active" id="btnFatal">
+                                <i class="fa fa-check"></i>
+                                <input type="checkbox" id="ShowFatal" checked value="true" /> Критические ошибки
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 no-padding">
+                        @using (Html.BeginForm("Customer", "Incoming", FormMethod.Get, new { @class = "form-inline pull-right" }))
+                        {
+                            <div class="form-group">
+                                <h5>Быстрый переход по дате: </h5>
+                                <div class="input-group">
+                                    <input type="hidden" name="Name" value="@ViewBag.Customer" />
+                                    <input type="text" class="form-control" name="Date" id="LoadingDate" value="@( string.IsNullOrEmpty(@ViewBag.SearchDate) == true ? DateTime.Now.ToString("dd.MM.yyyy") : @ViewBag.SearchDate  )" />
+                                    <span class="input-group-btn">
+                                        <button type="submit" class="btn btn-default"><i class="fa fa-arrow-right"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                        </div>
+                    </div>
+                <table id="datatable" class="table dt-responsive row-border hover" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="text-right">Действия</th>
+                            <th>Время начала обработки</th>
+                            <th>Общее время обработки</th>
+                            <th class="text-center">Номер документа</th>
+                            <th class="text-center">Имя файла</th>
+                            <th class="text-center">База</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div><!--end row-->
+
+<div id="cancelLoading"></div>
+
+<script>
+    $(function () {
+        $('#LoadingDate').datetimepicker({
+            locale: 'ru',
+            format: 'DD.MM.YYYY',
+            widgetPositioning: {
+                horizontal: 'right',
+                vertical: 'bottom'
+            }
+        });
+    });
+
+    function hasClass(element, cls) {
+        return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+    }
+
+    function CallModalForCancelLoading(DataBaseName, LoggerID, Date) {
+        $.ajax({
+            url: "@(Url.Action("_CancelLoading", "Incoming"))",
+            data: {
+                DataBaseName: DataBaseName,
+                LoggerID: LoggerID,
+                Date: Date
+            },
+            type: "POST",
+            cache: false,
+            async: true,
+            success: function (data) {
+                $('#cancelLoading').html(data);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        setInterval(function () {
+            table.ajax.reload(null, false);
+        }, 10000);
+
+        $('#btnOk').click(function () {
+            if (hasClass(this, 'active')) {
+                $("#btnOk>i").removeClass("fa-check").addClass("fa-times");
+                $("#btnOk>input#ShowOk").prop('checked', false);
+            }
+            else {
+                $("#btnOk>i").removeClass("fa-times").addClass("fa-check");
+                $("#btnOk>input#ShowOk").prop('checked', true);
+            }
+
+            table.draw();
+        });
+
+        $('#btnError').click(function () {
+            if (hasClass(this, 'active')) {
+                $("#btnError>i").removeClass("fa-check").addClass("fa-times");
+                $("#btnError>input#ShowError").prop('checked', false);
+            }
+            else {
+                $("#btnError>i").removeClass("fa-times").addClass("fa-check");
+                $("#btnError>input#ShowError").prop('checked', true);
+            }
+
+            table.draw();
+        });
+
+        $('#btnFatal').click(function () {
+            if (hasClass(this, 'active')) {
+                $("#btnFatal>i").removeClass("fa-check").addClass("fa-times");
+                $("#btnFatal>input#ShowFatal").prop('checked', false);
+            }
+            else {
+                $("#btnFatal>i").removeClass("fa-times").addClass("fa-check");
+                $("#btnFatal>input#ShowFatal").prop('checked', true);
+            }
+
+            table.draw();
+        });
+
+        $.fn.dataTableExt.afnFiltering.push(function (oSettings, aData, iDataIndex) {
+            var ShowOkChecked = $('#ShowOk').is(':checked');
+            var ShowErrorChecked = $('#ShowError').is(':checked');
+            var ShowFatalChecked = $('#ShowFatal').is(':checked');
+
+            if (ShowOkChecked && aData[6] === 'OK') {
+                return true;
+            }
+
+            if (ShowErrorChecked && aData[6] === 'ERROR') {
+                return true;
+            }
+
+            if (ShowFatalChecked && aData[6] === 'FATAL') {
+                return true;
+            }
+
+            if (ShowFatalChecked && aData[6] === '') {
+                return true;
+            }
+
+            return false;
+        });
+
+        var table = $('#datatable').DataTable({
+            "processing": true,
+            //"serverSide": true,
+            "iDisplayLength": 50,
+            "responsive": true,
+            "ajax": {
+                "url": "@Html.Raw(Url.Action("GetDataBaseJsonData", "Incoming", new { Type = 1, Name = @ViewBag.Customer, Date = @ViewBag.SearchDate }))",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "columns": [
+                {
+                    "data": "LoggerID",
+                    "orderable": false,
+                    "searchable": false,
+                    "visible": true,
+                    "render": function (data, type, row, meta) {
+                        var a;
+
+                        if (row.ResultStatus != '') {
+                            if (row.ResultStatus == 'OK') {
+                                a = '<a href="@Url.Action("Detail", "Incoming")?dbName=' + row.DataBaseName + '&ID=' + row.LoggerID + '" class="btn btn-success btn-border btn-rounded btn-xs" target="_Blank">Детализация</a>'
+                            }
+                            else if (row.ResultStatus == 'FATAL') {
+                                a = '<a href="@Url.Action("Detail", "Incoming")?dbName=' + row.DataBaseName + '&ID=' + row.LoggerID + '" class="btn btn-default btn-border btn-rounded btn-xs" target="_Blank">Детализация</a>'
+                            }
+                            else {
+                                a = '<a href="@Url.Action("Detail", "Incoming")?dbName=' + row.DataBaseName + '&ID=' + row.LoggerID + '" class="btn btn-danger btn-border btn-rounded btn-xs" target="_Blank">Детализация</a>'
+                            }
+
+                        }
+                        else {
+                            a = '<a href="#" onclick="CallModalForCancelLoading(\'' + row.DataBaseName + '\', ' + row.LoggerID + ', \'@ViewBag.SearchDate\')" class="btn btn-warning btn-border btn-rounded btn-xs">Отменить загрузку</button>'
+                        }
+
+                        return a;
+                    },
+                    "width": "1%",
+                    "className": "text-center verticalAlignMiddle"
+                },
+                {
+                    "data": "insertedDateTime",
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "1%",
+                    "className": "verticalAlignMiddle"
+                },
+                {
+                    "data": "TimerProcessingSeconds",
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "1%",
+                    "render": function (data, type, row, meta) {
+                        var a;
+
+                        if (row.ResultStatus != '') {
+                            a = row.TimerProcessingSeconds
+                        }
+                        else {
+                            a = 'Загружается...'
+                        }
+
+                        return a;
+                    },
+                    "className": "verticalAlignMiddle"
+                },
+                //{ "data": "ProjectID", "autoWidth": true },
+                //{ "data": "StockID", "autoWidth": true },
+                //{ "data": "SupplierID", "autoWidth": true },
+                {
+                    "data": "MessageID",
+                    "orderable": false,
+                    "className": "text-center verticalAlignMiddle"
+                },
+                {
+                    "data": "FileName",
+                    "orderable": false,
+                    "render": function (data, type, row, meta) {
+                        var a = '';
+
+                        if (row.FileName != 'null' && row.File != '') {
+                            a = '<a href="@Url.Action("DownloadFile", "Incoming")?UNCFilePath=' + row.File + '&FileName=' + row.FileName + '">' + row.FileName + '</a>'
+                        }
+
+                        return a;
+                    },
+                    "className": "text-center verticalAlignMiddle"
+                },
+                {
+                    "data": "DataBaseName",
+                    "width": "1%",
+                    "orderable": false,
+                    "className": "verticalAlignMiddle tdNowrap"
+                },
+                {
+                    "data": "ResultStatus",
+                    "orderable": false,
+                    "searchable": true,
+                    "visible": false
+                }
+            ],
+            "createdRow": function (row, data, dataIndex) {
+                if (data["ResultStatus"] == "OK") {
+                    $(row).addClass('success');
+                }
+                else if (data["ResultStatus"] == "ERROR") {
+                    $(row).addClass('danger');
+                }
+                else if (data["ResultStatus"] == "FATAL") {
+                    $(row).addClass('rowFatal');
+                }
+            },
+            "order": [[1, "desc"]],
+            "language": {
+                "processing": "Подождите...",
+                "search": "Поиск:",
+                "lengthMenu": "Показать _MENU_ записей",
+                "info": "Записи с _START_ до _END_ из _TOTAL_ записей",
+                "infoEmpty": "Записи с 0 до 0 из 0 записей",
+                "infoFiltered": "(отфильтровано из _MAX_ записей)",
+                "infoPostFix": "",
+                "loadingRecords": "Загрузка записей...",
+                "zeroRecords": "Записи отсутствуют.",
+                "emptyTable": "В таблице отсутствуют данные",
+                "paginate": {
+                    "first": "Первая",
+                    "previous": "Предыдущая",
+                    "next": "Следующая",
+                    "last": "Последняя"
+                },
+                "aria": {
+                    "sortAscending": ": активировать для сортировки столбца по возрастанию",
+                    "sortDescending": ": активировать для сортировки столбца по убыванию"
+                }
+            }
+        });
+    });
+</script>

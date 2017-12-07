@@ -1,0 +1,280 @@
+﻿@using MT.Web.IntegrationLogger.Models;
+@using System.Text.RegularExpressions;
+@model List<SchlumbergerData>
+
+<!--page header start-->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Управление обменом Schlumberger</h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <ol class="breadcrumb">
+                <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>
+                <li>Schlumberger</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!--page header end-->
+<div class="row">
+    <div class="col-md-6 col-sm-12">
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                <div class="widget bg-@Model.Where(w => w.Type == 1002).Select(s => s.Class).FirstOrDefault() padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-cloud-upload fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@Model.Where(w => w.Type == 1002).Select(s => s.Value).FirstOrDefault()</h3>
+                            <div class="text">Выгружаемый номер</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div><!--end col-->
+            <div class="col-md-6 col-sm-12">
+                <div class="widget bg-@Model.Where(w => w.Type == 1003).Select(s => s.Class).FirstOrDefault() padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-clock-o fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@Model.Where(w => w.Type == 1003).Select(s => s.Value).FirstOrDefault()</h3>
+                            <div class="text">Последняя отправка</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div><!--end col-->
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                <div class="widget bg-@Model.Where(w => w.Type == 1001).Select(s => s.Class).FirstOrDefault() padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-cloud-download fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@Model.Where(w => w.Type == 1001).Select(s => s.Value).FirstOrDefault()</h3>
+                            <div class="text">Номер в SLB</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div><!--end col-->
+            <div class="col-md-6 col-sm-12">
+                <div class="widget bg-@(Model.Where(w => w.Type == 1005).Count() == 0 ? "success" : Model.Where(w => w.Type == 1005).Select(s => s.Class).FirstOrDefault()) padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-suitcase fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@Model.Where(w => w.Type == 1005).Count()</h3>
+                            <div class="text">Трипов в отчете</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div><!--end col-->
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                <div class="widget bg-@Model.Where(w => w.Type == 1007).Select(s => s.Class).FirstOrDefault() padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-archive fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@Model.Where(w => w.Type == 1007).Select(s => s.Value).FirstOrDefault()</h3>
+                            <div class="text">Парселей в отчете</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div><!--end col-->
+            <div class="col-md-6 col-sm-12">
+                <div class="widget bg-@(Model.Where(w => w.Type == 1006).Count() == 0 ? "success" : Model.Where(w => w.Type == 1006).Select(s => s.Class).FirstOrDefault()) padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-share-square-o fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@Model.Where(w => w.Type == 1006).Count()</h3>
+                            <div class="text">Отсроченные трипы</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div><!--end col-->
+        </div>
+    </div>
+    <div class="col-md-6 col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @*<div class="row">
+                    <div class="col-md-offset-1 col-md-3">
+                        <a href="javascript: SchlumbergerAction('3', '');" class="btn btn-teal btn-icon"><i class="fa fa-download"></i> Скачать отчет</a>
+                    </div>
+                </div>
+                <br />*@
+                <div class="row">
+                    <div class="col-md-offset-1 col-md-3">
+                        <a href="javascript: SchlumbergerAction('4', '');" class="btn btn-success btn-icon"><i class="fa fa-repeat "></i> Повторить Событие</a>
+                    </div>
+                </div>
+                @if (Model.Where(w => w.Type == 1004).Count() > 0)
+                { 
+                    <br />
+                    <div class="row">
+                        <div class="col-md-offset-1 col-md-3">
+                        
+                                <a href="javascript: jumpTo('DetailAlert')" class="btn btn-danger btn-icon"><i class="fa fa-exclamation-circle "></i> Показать Ошибку</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loader" class="text-center"></div>
+
+<div class="row" id="SchlumbergerData">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h4>Список трипов выгружаемых в текущий момент</h4>
+                <div>
+                    <table class="table dt-responsive row-border hover" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Действия</th>
+                                <th>Трип</th>
+                                <th>МЗК Отгрузки</th>
+                                <th>Дата Отгрузки</th>
+                                <th>Equipment</th>
+                                <th>Service Provider</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(SchlumbergerData Data in Model.Where(w => w.Type == 1005))
+                            {
+                                string trClass = "default";
+                                if (Regex.Matches(Data.Equipment, @"[а-яА-Я]").Count > 0)
+                                {
+                                    trClass = "danger";
+                                }
+
+                                if (Model.Where(w => w.Type == 1004).Any())
+                                {
+                                    if (Model.Where(w => w.Type == 1004).Select(s => s.Value).FirstOrDefault().Contains(Data.Object))
+                                    {
+                                        trClass = "danger";
+                                    }
+                                }
+
+                                <tr class="@trClass">
+                                    <td>
+                                        <a href="#" onclick="SchlumbergerAction('1', '@Data.Object')" class="btn btn-warning btn-border btn-rounded btn-xs">Исключить</a>
+                                    </td>
+                                    <td>@Data.Object</td>
+                                    <td>@Data.Value</td>
+                                    <td>@DateTime.Parse(Data.Datetime.ToString()).ToString("dd.MM.yyyy")</td>
+                                    <td>@Data.Equipment</td>
+                                    <td>@Data.ServiceProvider</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div><!--col-md-12-->
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h4>Список отсроченных трипов</h4>
+                <div>
+                    <table class="table dt-responsive row-border hover" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Действия</th>
+                                <th>Трип</th>
+                                <th>МЗК Отгрузки</th>
+                                <th>Дата Отгрузки</th>
+                                <th>Equipment</th>
+                                <th>Service Provider</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (SchlumbergerData Data in Model.Where(w => w.Type == 1006))
+                            {
+                                string trClass = "default";
+                                if (Regex.Matches(Data.Equipment, @"[а-яА-Я]").Count > 0)
+                                {
+                                    trClass = "danger";
+                                }
+
+                                <tr class="@trClass text-center">
+                                    <td>
+                                        <a href="#" onclick="SchlumbergerAction('2', '@Data.Object')" class="btn btn-success btn-border btn-rounded btn-xs">Включить</a>
+                                        <a href="#" onclick="SchlumbergerAction('5', '@Data.Object')" class="btn btn-teal btn-border btn-rounded btn-xs">Приход</a>
+                                    </td>
+                                    <td>@Data.Object</td>
+                                    <td>@Data.Value</td>
+                                    <td>@DateTime.Parse(Data.Datetime.ToString()).ToString("dd.MM.yyyy")</td>
+                                    <td>@Data.Equipment</td>
+                                    <td>@Data.ServiceProvider</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div><!--col-->
+</div>
+
+@if (Model.Where(w => w.Type == 1004).Count() > 0)
+{
+    <div class="alert alert-danger alert-dismissible fade in" role="alert" id="DetailAlert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h3>Отчет из MJR не загружен в RIET.</h3><strong>Ошибка:</strong>
+        @Html.Raw(Model.Where(w => w.Type == 1004).Select(s => s.Value).FirstOrDefault())
+    </div>
+}
+
+<script>
+    function SchlumbergerAction(ActionType, Trip) {
+        $('#SchlumbergerData').addClass('tableLoader');
+        $('#loader').addClass('schlumbergerLoader');
+        $('#loader').html('<i class=\'fa fa-spinner fa-spin \' style=\'font-size:40px\'></i>');
+
+        $.ajax({
+            url: "@(Url.Action("Schlumberger", "Project"))",
+            type: "POST",
+            data: {
+                ActionType: ActionType,
+                Object: Trip
+            },
+            cache: false,
+            async: true,
+            success: function () {
+                window.location.reload(false); 
+            }
+        });
+    }
+
+    function getPosition(element) {
+        var e = document.getElementById(element);
+        var left = 0;
+        var top = 0;
+
+        do {
+            left += e.offsetLeft;
+            top += e.offsetTop;
+        } while (e = e.offsetParent);
+
+        return [left, top];
+    }
+
+    function jumpTo(id) {
+        window.scrollTo(getPosition(id));
+    }
+</script>

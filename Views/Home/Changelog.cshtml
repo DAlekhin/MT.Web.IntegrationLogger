@@ -1,0 +1,186 @@
+﻿@using MT.Web.IntegrationLogger.Models;
+
+<!--page header start-->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Список изменений на веб-портале</h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <ol class="breadcrumb">
+                <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>
+                <li>Список изменений</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!--page header end-->
+
+<!--start page content-->
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+             @*<div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading#">
+                    <!--Заголовок параграфа-->
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse#" aria-expanded="false" aria-controls="collapse#">
+                        <i class="fa fa-angle-down"></i> 3 июля 2017
+                    </a>
+                </div>
+                <!--Тело параграфа-->
+                <div id="collapse#" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading#">
+                    <div class="panel-body">
+                        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                    </div>
+                </div>
+            </div>*@
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingFive">
+                    <!--Заголовок параграфа-->
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        <i class="fa fa-angle-down"></i> 13 июля 2017
+                    </a>
+                </div>
+                <!--Тело параграфа-->
+                <div id="collapse#" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
+                    <div class="panel-body">
+                        Добавлена возможность отмены загрузки загружащихся заявок.
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingFour">
+                    <!--Заголовок параграфа-->
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        <i class="fa fa-angle-down"></i> 3 июля 2017
+                    </a>
+                </div>
+                <!--Тело параграфа-->
+                <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                    <div class="panel-body">
+                        <p>
+                            Изменен интерфейс детализации загрузки файла заявки.
+                        </p>
+                        <p>
+                            Добавлен заголовок, в котором дублируется информация из строк результатов загрузки на страницах вложенных элементов меню Входящие файлы. Интерактивные элементы:
+                            <ul>
+                                <li>
+                                    Возможность указать фильтры уровня логгирования в строках детализации.
+                                </li>
+                                <li>
+                                    Возможность скачать файл заявки при наличии такой возможности.
+                                </li>
+                                <li>
+                                    Возможность повторно отправить файл заявки в робота автоматически по кнопке при наличии такой возможности.
+                                </li>
+                            </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingThree">
+                    <!--Заголовок параграфа-->
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        <i class="fa fa-angle-down"></i> 22 июня 2017
+                    </a>
+                </div>
+                <!--Тело параграфа-->
+                <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                    <div class="panel-body">
+                        <p>
+                            Изменен принцип передачи результатов загрузки от WCF сервиса до веб-портала. Благодаря этому скорость передачи данных и их целостность значительно повысилась.
+                            <ul>
+                                <li>
+                                    Теперь для передачи сообщений используется REST сервис на стороне веб-портала по адресу <a href="http://logger.integration.mjr.ru/Endpoint/Receiver.svc">http://logger.integration.mjr.ru/Endpoint/Receiver.svc</a>.
+                                </li>
+                                <li>
+                                    WCF сервисы на площадках баз формируют JSON сообщение и отправляют его на REST сервис.
+                                </li>
+                            </ul>
+                        </p>
+                        <p>
+                            Добавлены мелкие косметические исправления на веб-портале.
+                        </p>
+                        <p>
+                            Добавлено автоматическое обновление строк результатов загрузки на страницах вложенных элементов меню Входящие файлы каждые 10 секунд без обновления самой страницы браузером.
+                        </p>
+                        <p>
+                            Добавлена возможность быстрого перехода на страницу элемента меню Входящие файлы по поставщику с конкретной датой.
+                        </p>
+                        <p>
+                            Время доступности загрузки файлов на веб-портале увеличено с 3 дней до 31 дня.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingTwo">
+                    <!--Заголовок параграфа-->
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        <i class="fa fa-angle-down"></i> 20 марта 2017
+                    </a>
+                </div>
+                <!--Тело параграфа-->
+                <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                    <div class="panel-body">
+                        <p>
+                            Полный редизайн веб-портала мониторинга загрузки заявок через BizTalk.
+                        </p>
+                        <p>
+                            Стали доступны следующие функции:
+                            <ul>
+                                <li>
+                                    Раздельный список строк загрузки по Базам, Клиентам, Поставщикам и Подвязке файлов.
+                                </li>
+                                <li>
+                                    Возможность фильтровать список вложенных элементов в меню Входящих файлов по E-mail адресу.
+                                </li>
+                                <li>
+                                    Во вложенных элементах меню Входящие файлы можно фильтровать строки по:
+                                    <ul>
+                                        <li>Успешным загрузкам</li>
+                                        <li>Ошибкам</li>
+                                        <li>Критическим ошибкам</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    На страницах вложенных элементов меню Входящие файлы можно фильтровать строки по:
+                                </li>
+                                <li>
+                                    На страницах вложенных элементов меню Входящие файлы можно выбирать дату загрузки файлов.
+                                </li>
+                                <li>
+                                    Изменен принцип формирования строк результатов загрузки на страницах вложенных элементов меню Входящие файлы. Теперь весь массив строк получается одним запросом, в следствии чего поле "Поиск" работает в режиме реального времени, фильтруя строки без повторного запроса на сервер. Аналогичный принцип работы для строк детализации.
+                                </li>
+                            </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne">
+                    <!--Заголовок параграфа-->
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        <i class="fa fa-angle-down"></i> 04 декабря 2015
+                    </a>
+                </div>
+                <!--Тело параграфа-->
+                <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                    <div class="panel-body">
+                        <p>Запуск первой версии мониторинга загрузки заявок через BizTalk.</p>
+                        <img src="@Url.Content("~/Images/Retro.jpg")" width="100%" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--end page content-->

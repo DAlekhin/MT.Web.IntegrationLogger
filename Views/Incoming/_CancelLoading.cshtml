@@ -1,0 +1,65 @@
+﻿@model MT.Web.IntegrationLogger.Models.DataBaseData
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="CancelLoading" id="cancelLoadingModal">
+    <div class="modal-dialog modal-default" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="fa fa-times-circle"></span></button>*@
+                <h4 class="modal-title" id="CancelLoading">Отмена загрузки документа <small>@Model.LoggerID</small></h4>
+            </div>
+            <div class="modal-body">
+                <p>Вы собираетесь отменить загрузку файла <strong>@Model.FileName</strong> от <strong>@Model.insertedDateTime</strong>.</p>
+                <div class="text-center">
+                    <h4 class="text-danger" id="Result">Вы уверены?</h4>
+                </div>
+                <br />
+                <div class="text-center">
+                    <button type="button" class="btn btn-danger btn-rounded" onclick="CancelLoadingAgree('@Model.DataBaseName', @Model.SPID)" id="CancelLoadingAgreeBtn">
+                        <i class="fa fa-exclamation-triangle"></i> Да, отменить загрузку</button>
+                        <a href="#" class="btn btn-success btn-rounded" data-dismiss="modal" id="CancelLoadingCloseBtn">Нет, закрыть окно</a>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#cancelLoadingModal').modal();
+
+    function CancelLoadingAgree(DataBaseName, SPID) {
+        $('#CancelLoadingAgreeBtn').addClass('disabled');
+        $('#Result').removeClass('text-danger');
+        $('#Result').html('<i class=\'fa fa-spinner fa-spin \' style=\'font-size:40px\'></i>');
+
+        $.ajax({
+            url: "@(Url.Action("CancelLoading", "Incoming"))",
+            type: "POST",
+        data: {
+            DataBaseName: DataBaseName,
+            SPID: SPID,
+            LoggerID: @Model.LoggerID
+        },
+        cache: false,
+        async: true,
+        success: function (data) {
+            if (!data.Success) {
+                $('#CancelLoadingAgreeBtn').removeClass('btn-default');
+                $('#CancelLoadingAgreeBtn').removeClass('btn-border');
+                $('#Result').addClass('text-danger');
+                $('#Result').html(data.ResultText);
+            }
+            else {
+                $('#CancelLoadingAgreeBtn').removeClass('btn-default');
+                $('#CancelLoadingAgreeBtn').removeClass('btn-border');
+                $('#CancelLoadingAgreeBtn').removeClass('btn-danger');
+                $('#CancelLoadingAgreeBtn').addClass('btn-success');
+                $('#CancelLoadingAgreeBtn').hide();
+                $('#CancelLoadingCloseBtn').html('Закрыть окно');
+                //$('#Result').removeClass('text-danger');
+                $('#Result').addClass('text-success');
+                $('#Result').html("Загрузка успешно отменена.");
+            }
+        }
+    });
+    }
+</script>

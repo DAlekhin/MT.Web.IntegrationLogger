@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="MT.Web.IntegrationLogger.Endpoint.Receiver" CodeBehind="Receiver.svc.cs" %>

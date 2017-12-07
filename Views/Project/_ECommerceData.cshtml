@@ -1,0 +1,19 @@
+﻿@using MT.Web.IntegrationLogger.Models;
+@using Newtonsoft.Json;
+
+@model string
+
+@if (Model.TrimStart().Substring(0, 2).Contains("[") || Model.TrimStart().Substring(0, 2).Contains("{"))
+{
+    <pre lang="json" id="JsonView"></pre>
+    
+    <script>
+        var ciResponseText = document.getElementById('JsonView');
+        var obj = JSON.parse('@Html.Raw(Model.Trim())');
+        ciResponseText.innerHTML = JSON.stringify(obj, undefined, 2);
+    </script>
+}
+else
+{
+    <pre lang="xml" class="brush:xml">@Model.Trim()</pre>
+}

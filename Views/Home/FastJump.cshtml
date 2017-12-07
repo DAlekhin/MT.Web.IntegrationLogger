@@ -1,0 +1,132 @@
+﻿@using MT.Web.IntegrationLogger.Models;
+
+<!--page header start-->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Быстрый переход</h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <ol class="breadcrumb">
+                <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>
+                <li>Быстрый переход</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!--page header end-->
+<!--start page content-->
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>Быстрый переход по Базе</h3>
+                <div class="col-sm-6 text-center">
+                    <h5>Выберите базу</h5>
+                </div>
+                <div class="col-sm-6 text-center">
+                    <h5>Выберите дату</h5>
+                </div>
+                @using (Html.BeginForm("Database", "Incoming", FormMethod.Get))
+                {
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <select name="Name" class="form-control m-b">
+                                    @foreach (OtherData dbName in @ViewBag.DataBasesSelect)
+                                    {
+                                        <option>@dbName.Value1</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="LoadingDateBase" name="Date" value="@( DateTime.Now.ToString("dd.MM.yyyy") )" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pull-right">
+                        <div class="col-sm-12">
+                            <input type="submit" class="btn btn-default btn-border" value="Перейти" />
+                        </div>
+                    </div>
+                }
+                </div>
+            </div>
+        </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3>Быстрый переход по Поставщику</h3>
+                <div class="col-sm-6 text-center">
+                    <h5>Выберите поставщика</h5>
+                </div>
+                <div class="col-sm-6 text-center">
+                    <h5>Выберите дату</h5>
+                </div>
+                @using (Html.BeginForm("Supplier", "Incoming", FormMethod.Get))
+                {
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <select name="Name" class="form-control m-b">
+                                    @foreach (OtherData supplier in @ViewBag.SuppliersSelect)
+                                    {
+                                        <option>@supplier.Value1</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="LoadingDateSupplier" name="Date" value="@( DateTime.Now.ToString("dd.MM.yyyy") )" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pull-right">
+                        <div class="col-sm-12">
+                            <input type="submit" class="btn btn-default btn-border" value="Перейти" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<!--end page content-->
+
+<script>
+    $(function () {
+        $('#LoadingDateBase').datetimepicker({
+            locale: 'ru',
+            format: 'DD.MM.YYYY',
+            widgetPositioning: {
+                horizontal: 'right',
+                vertical: 'bottom'
+            }
+        });
+    });
+
+    $(function () {
+        $('#LoadingDateSupplier').datetimepicker({
+            locale: 'ru',
+            format: 'DD.MM.YYYY',
+            widgetPositioning: {
+                horizontal: 'right',
+                vertical: 'bottom'
+            }
+        });
+    });
+</script>
+

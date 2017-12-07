@@ -1,0 +1,137 @@
+﻿@using MT.Web.IntegrationLogger.Models;
+@using System.Text.RegularExpressions;
+@model List<LPPData>
+
+@{
+    int SentCount = Model.Where(w => w.Type == 1004).Select(s => s.Count).FirstOrDefault();
+    int LoadedCount = Model.Where(w => w.Type == 1005).Select(s => s.Count).FirstOrDefault();
+    string dateLoad = @Model.Where(w => w.Type == 1003).Select(s => s.Data).FirstOrDefault() ?? "СЕГОДНЯ НЕТ";
+}
+
+<!--page header start-->
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>Статус загрузки волн по LPP</h4>
+        </div>
+        <div class="col-sm-6 text-right">
+            <ol class="breadcrumb">
+                <li><a href="javascript: void(0);"><i class="fa fa-home"></i></a></li>
+                <li>LPP</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!--page header end-->
+<div class="row">
+    <div class="col-md-6 col-sm-12">
+        <div class="row">
+            <div class="col-lg-6 col-md-12 col-sm-12">
+                <div class="widget bg-@(SentCount == 0 ? "danger" : "success") padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-cloud-upload fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@SentCount</h3>
+                            <div class="text">Отправлено Волн</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div><!--end col-->
+            <div class="col-lg-6 col-md-12 col-sm-12">
+                <div class="widget bg-@(dateLoad == "СЕГОДНЯ НЕТ" ? "danger" : "success") padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-clock-o fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@dateLoad</h3>
+                            <div class="text">Последний Файл на FTP</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-12 col-sm-12">
+                <div class="widget bg-@((SentCount - LoadedCount) > 10 || LoadedCount == 0 ? "danger" : ((SentCount - LoadedCount) > 0 ? "warning" : "success")) padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-cloud-download fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@LoadedCount</h3>
+                            <div class="text">Загружено Волн</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div><!--end col-->
+            <div class="col-lg-6 col-md-12 col-sm-12">
+                <div class="widget bg-@(Model.Where(w => w.Type == 1006).Count() > 0 ? "danger" : "success") padding-0 margin-b-30">
+                    <div class="row row-table">
+                        <div class="col-xs-4 text-center pv-15 bg-light-dark">
+                            <em class="fa fa-line-chart fa-3x"></em>
+                        </div>
+                        <div class="col-xs-8 pv-15 text-center">
+                            <h3 class="mv-0">@(Model.Where(w => w.Type == 1006).Count() > 0 ? "ЗАГРУЖАЕТСЯ" : "НЕТ ЗАГРУЗОК")</h3>
+                            <div class="text">Статус BizTalk</div>
+                        </div>
+                    </div>
+                </div><!--end widget-->
+            </div><!--end col-->
+        </div>
+    </div>
+    <div class="col-md-6 col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h4>Текущее распределении Волн</h4>
+                <div>
+                    <table class="table dt-responsive row-border hover" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Склад</th>
+                                <th>Брэнд</th>
+                                <th>Кол-во строк</th>
+                                <th>Кол-во штук</th>
+                                <th>МЗК</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(LPPData Data in Model.Where(w => w.Type == 1001).OrderBy(ob => ob.Brand))
+                            {
+                                <tr class="@(Data.LocationCode == "" ? "danger" : "")">
+                                    <td>@Data.LocationCode</td>
+                                    <td>@Data.Brand</td>
+                                    <td>@Data.Count</td>
+                                    <td>@Data.Sum</td>
+                                    <td>
+                                        @if (Data.Data.Contains(";"))
+                                        {
+                                            @Regex.Replace(Data.Data, @"\s*;\s*", "|")
+                                        }
+                                        else
+                                        {
+                                            @Data.Data
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            <hr />
+                            <tr>
+                                <td colspan="2"><strong>Итого:</strong></td>
+                                <td><strong>@Model.Where(w => w.Type == 1001).Sum(s => s.Count)</strong></td>
+                                <td><strong>@Model.Where(w => w.Type == 1001).Sum(s => s.Sum)</strong></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+</script>
